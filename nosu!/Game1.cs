@@ -1,8 +1,12 @@
-﻿
+﻿using nosu;
+
 namespace nosu_;
 
 public class Game1 : Game
 {
+    Beatmap test = new Beatmap(Beatmap.GetBeatmaps()[1]);
+    SpriteFont beatmapName;
+        
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -16,7 +20,6 @@ public class Game1 : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-
         base.Initialize();
     }
 
@@ -25,6 +28,7 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
+        beatmapName = Content.Load<SpriteFont>("BeatmapName");
     }
 
     protected override void Update(GameTime gameTime)
@@ -39,9 +43,12 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.DarkViolet);
 
         // TODO: Add your drawing code here
+        _spriteBatch.Begin();
+        //_spriteBatch.DrawString(beatmapName, test.catagories[0], new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2), Color.Black);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }

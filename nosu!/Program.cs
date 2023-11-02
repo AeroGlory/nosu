@@ -1,4 +1,2 @@
-﻿
-using var game = new nosu_.Game1();
+﻿using var game = new nosu_.Game1();
 game.Run();
-
