@@ -34,7 +34,7 @@ namespace nosu
                     if (Path.GetExtension(assets[i]) == ".osu")
                     {
                         Console.WriteLine("Retrieving beatmap data");
-                        difficulties.Add((GetDiffInfo(assets[i])));
+                        difficulties.Add(GetDiffInfo(assets[i]));
                     }
                 }
             }
