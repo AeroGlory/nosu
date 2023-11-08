@@ -1,10 +1,11 @@
 ﻿using nosu;
-
+using System.Collections;
 namespace nosu_;
 
 public class Game1 : Game
 {
-    Beatmap test = new Beatmap(Beatmap.GetBeatmaps()[1]);
+    List<string> beatmapLocations;
+    List<Beatmap> beatmaps;
     SpriteFont beatmapName;
         
     private GraphicsDeviceManager _graphics;
@@ -14,12 +15,22 @@ public class Game1 : Game
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
+        IsMouseVisible = false; //To use custom "circle" circle found in osu!
     }
 
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
+        beatmapLocations = Beatmap.GetBeatmaps();
+        beatmaps = new();
+        for (int i = 0; i < beatmapLocations.Count; i++)
+        {
+            Console.WriteLine(beatmapLocations);
+            Beatmap beatmap = new Beatmap(Beatmap.GetBeatmaps()[i]);
+            if (beatmap.assets != null) {
+                beatmaps.Add(beatmap);
+            }
+        }
         base.Initialize();
     }
 
@@ -43,11 +54,13 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.DarkViolet);
+        GraphicsDevice.Clear(Color.Black);
 
         // TODO: Add your drawing code here
         _spriteBatch.Begin();
-        //_spriteBatch.DrawString(beatmapName, test.catagories[0], new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2), Color.Black);
+        _spriteBatch.DrawString(beatmapName, (string)((Hashtable)beatmaps[0].difficulties[0]["[General]"])["Title"],
+            new Vector2(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2),
+            Color.White);
         _spriteBatch.End();
 
         base.Draw(gameTime);
