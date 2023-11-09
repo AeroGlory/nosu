@@ -23,7 +23,7 @@ namespace nosu
                 }
                 catch
                 {
-                    Console.WriteLine("Uh-oh, our code, it's broken. A");
+                    Console.WriteLine("Uh-oh, our code, it's broken. A"); //TODO: Make these throw actually errors to be caught in Game1.cs
                 }
             }
             try
@@ -40,7 +40,7 @@ namespace nosu
             }
             catch
             {
-                Console.WriteLine("Uh-oh, our code, it's broken. B");
+                Console.WriteLine("Uh-oh, our code, it's broken. B"); //TODO: Make these throw actually errors to be caught in Game1.cs
             }
         }
 
