@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace nosu
@@ -8,6 +9,7 @@ namespace nosu
     {
         public List<string> assets;
         public List<Hashtable> difficulties = new();
+        public string fullPath;
         public Beatmap(string filePath)
         {
             Console.WriteLine(filePath + Path.GetExtension(filePath));
@@ -15,11 +17,13 @@ namespace nosu
             {
                 try
                 {
+                    
                     string folderPath = @"/Users/aeroglory/Projects/nosu!/nosu!/Beatmaps/" + filePath.Split('/')[filePath.Split('/').Length - 1].Split('.')[0];  //Splits the entire file path to create a folder named after the name of the .osz file
                     Directory.CreateDirectory(folderPath);
                     System.IO.Compression.ZipFile.ExtractToDirectory(filePath, folderPath);
                     File.Delete(filePath);
                     filePath = folderPath;
+                    fullPath = filePath; //TODO: Broken still :3
                 }
                 catch
                 {
@@ -83,6 +87,7 @@ namespace nosu
                         catch
                         {
                             //For whitespace or something else that causes the Split() to not work
+                            //TODO: Make it not do that
                             continue;
                         }
                                                  
@@ -100,6 +105,8 @@ namespace nosu
                         {
                             hitObjects.Add(new HitObject(data[i].Split("\n")[i]));
                         }
+
+                        diffData.Add(sections[i], hitObjects);
                     }
                     else
                     {
@@ -112,6 +119,15 @@ namespace nosu
 
             return diffData;
         }
+
+
+        public static bool initGameplay(Beatmap beatmap)
+        {
+            
+
+            return false;
+        }
+
     }
 }
 
