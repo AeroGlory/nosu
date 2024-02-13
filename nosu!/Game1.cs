@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using nosu;
+using OsuParsers.Beatmaps.Objects;
 using System.Collections;
 using NetCoreAudio;
 using System.Diagnostics.Metrics;
@@ -9,16 +10,19 @@ namespace nosu_;
 public class Game1 : Game
 {
     int currentBeatmap = 0;
+    int nextObject = 0;
     int currentDiff = 0;
-    int currentHitObject = 0;
     const double selectCooldown = 0.2;
     double prevPress;
     double prevSelect;
+    HitObject currentHitObject;
     double beatmapStart;
+    bool initialized = false;
+    bool finished = false;
 
     List<HitObject> hitObjects;
     List<string> beatmapLocations;
-    List<Beatmap> beatmaps;
+    List<BeatmapFiles> beatmaps;
     Vector2 mousePos;
 
     enum GameState
@@ -35,6 +39,7 @@ public class Game1 : Game
     Texture2D nextPageR;
     Texture2D hitCircle;
     Player player = new();
+    
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -43,7 +48,7 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false; //To use custom "circle" cursor found in osu!
-        //_graphics.PreferredBackBufferWidth = 500;
+        //_graphics.PreferredBackBufferWidth = 500; 
         //_graphics.PreferredBackBufferHeight = 500;
         _graphics.IsFullScreen = false;
     }
@@ -51,12 +56,12 @@ public class Game1 : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-        beatmapLocations = Beatmap.GetBeatmaps();
+        beatmapLocations = BeatmapFiles.GetBeatmaps();
         beatmaps = new();
         for (int i = 0; i < beatmapLocations.Count; i++)
         {
             Console.WriteLine(beatmapLocations);
-            Beatmap beatmap = new Beatmap(Beatmap.GetBeatmaps()[i]);
+            BeatmapFiles beatmap = new BeatmapFiles(BeatmapFiles.GetBeatmaps()[i]);
             if (beatmap.assets != null) {
                 beatmaps.Add(beatmap);
             }
@@ -73,13 +78,23 @@ public class Game1 : Game
         nextPageL = Content.Load<Texture2D>("nextPg");
         nextPageR = Content.Load<Texture2D>("nextPg");
         cursor = Content.Load<Texture2D>("cursor");
-        //hitCircle = Content.Load<Texture2D>("hitcircle");
+        hitCircle = Content.Load<Texture2D>("hitcircle");
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+        {
+            if (gameState == GameState.Gameplay)
+            {
+                finished = true;
+                initialized = false;
+            }
+            else
+            {
+                Exit();
+            }
+        }
         switch (gameState)
         {
             case GameState.SongSelect:
@@ -116,29 +131,76 @@ public class Game1 : Game
                 break;
 
             case GameState.Gameplay:
-                beatmapStart = gameTime.TotalGameTime.TotalMilliseconds; //TODO: Should not be in here, gets constantly reassigned
 
-                hitObjects = (List<HitObject>)beatmaps[currentBeatmap].difficulties[0]["[HitObjects]"]; //TODO: Should not be in here, gets constantly reassigned\\
+                if (!initialized)
+                {
+                    finished = false;
 
-                foreach(HitObject hitObject in hitObjects) {
-                    Console.WriteLine(hitObject.x.ToString(), hitObject.y.ToString(), hitObject.time.ToString());
+                    beatmapStart = gameTime.TotalGameTime.TotalMilliseconds; //TODO: Should not be in here, gets constantly reassigned
+
+                    hitObjects = beatmaps[currentBeatmap].difficulties[0].HitObjects; //TODO: Should not be in here, gets constantly reassigned
+
+                    nextObject = 0;
+
+                    currentHitObject = hitObjects[nextObject];
+
+                    initialized = true;
                 }
 
+                //if(beatmapStart == currentHitObject.StartTime) {
+
+                //}
+                //else
+                //{
+                //nextObject++;
+                //}
+
+                currentHitObject = hitObjects[nextObject];
+
+                //Thread.Sleep(1000);
+
+                if (nextObject + 1 <= hitObjects.Count - 1)
+                {
+                    if (currentHitObject.StartTime! <= gameTime.TotalGameTime.TotalMilliseconds - beatmapStart)
+                    {
+                        nextObject++;
+                    }
+                }
+                else
+                {
+                    finished = true;
+                    initialized = false;
+                }
+
+                if (finished)
+                {
+                    gameState = GameState.SongSelect; //TODO: Make notes synced to start time.
+                }
+
+                Console.WriteLine(gameTime.TotalGameTime.TotalMilliseconds - beatmapStart);
+                /*foreach(HitObject hitObject in hitObjects) {
+                    Console.WriteLine(hitObject.x.ToString(), hitObject.y.ToString(), hitObject.time.ToString());
+                }*/
+
+                //player.Play(Path.GetFullPath(beatmaps[currentBeatmap].difficulties[currentDiff].GeneralSection.AudioFilename));
 
                 //Console.WriteLine(beatmaps[currentBeatmap].fullPath + (string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["AudioFilename"]);
 
                 try
                 {
-                    if (!player.Playing)
+                    if (!player.Playing) //TODO: make it work
                     {
-                        Console.WriteLine(Path.GetFullPath((string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["AudioFilename"])); //C# hates absoulte file paths apparently
-                         
+                        //Console.WriteLine(Path.GetFullPath(beatmaps[currentBeatmap].difficulties[0].GeneralSection.AudioFilename)); //C# hates absoulte file paths apparently
+
                         //player.Play(Path.GetFullPath((string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["AudioFilename"]));
+                        
+                        //player.Play(Path.GetFullPath(@"/Users/aeroglory/Getter\ Jaani\ -\ Rockefeller\ Street\ \(Nightcore\ Mix\).mp3"));
+                        //Console.WriteLine(Path.GetFullPath(@"/Users/aeroglory/Getter\ Jaani\ -\ Rockefeller\ Street\ \(Nightcore\ Mix\).mp3")); 
                         //player.Play(beatmaps[currentBeatmap].fullPath + (string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["AudioFilename"]);
                     }
                     else
                     {
-                        Console.WriteLine("Already playing.");
+                        //Console.WriteLine("Already playing.");
                     }
                 }
                 catch //It's a await function idiot 
@@ -166,13 +228,13 @@ public class Game1 : Game
             case GameState.SongSelect:
                 GraphicsDevice.Clear(Color.LightPink);
                 _spriteBatch.Begin();
-                _spriteBatch.DrawString(beatmapName, (string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["Title"],
-                    new Vector2(_graphics.PreferredBackBufferWidth / 2 - (beatmapName.MeasureString((string)((Hashtable)beatmaps[currentBeatmap].difficulties[0]["[General]"])["Title"]).X / 2f), _graphics.PreferredBackBufferHeight / 2.3f),
+                _spriteBatch.DrawString(beatmapName, beatmaps[currentBeatmap].difficulties[0].MetadataSection.Title,
+                    new Vector2(_graphics.PreferredBackBufferWidth / 2 - (beatmapName.MeasureString(beatmaps[currentBeatmap].difficulties[0].MetadataSection.Title).X / 2f), _graphics.PreferredBackBufferHeight / 2.3f),
                     Color.Black);
 
                 //Page buttons
                 _spriteBatch.Draw(nextPageL, new Vector2(0, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.FlipHorizontally, 0f);
-                _spriteBatch.Draw(nextPageR, new Vector2(_graphics.PreferredBackBufferWidth - nextPageR.Width / 8.8f, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.None, 0f); //TODO: Why the frick is this divided by cursor.Width???????????????????????????????
+                _spriteBatch.Draw(nextPageR, new Vector2(_graphics.PreferredBackBufferWidth - nextPageR.Width / 8.8f, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.None, 0f); //Why the frick is this divided by cursor.Width???????????????????????????????
 
                 //Cursor
                 _spriteBatch.Draw(cursor, mousePos, null, Color.White, 0f, new Vector2(cursor.Width / 2, cursor.Height / 2), Vector2.One, SpriteEffects.None, 0f);
@@ -184,13 +246,13 @@ public class Game1 : Game
             case GameState.DiffSelect:
                 GraphicsDevice.Clear(Color.LightPink);
                 _spriteBatch.Begin();
-                _spriteBatch.DrawString(beatmapName, (string)((Hashtable)beatmaps[currentBeatmap].difficulties[currentDiff]["[General]"])["Version"],
-                    new Vector2(_graphics.PreferredBackBufferWidth / 2 - (beatmapName.MeasureString((string)((Hashtable)beatmaps[currentBeatmap].difficulties[currentDiff]["[General]"])["Version"]).X / 2f), _graphics.PreferredBackBufferHeight / 2.3f),
+                _spriteBatch.DrawString(beatmapName, beatmaps[currentBeatmap].difficulties[currentDiff].MetadataSection.Version,
+                    new Vector2(_graphics.PreferredBackBufferWidth / 2 - (beatmapName.MeasureString(beatmaps[currentBeatmap].difficulties[currentDiff].MetadataSection.Version).X / 2f), _graphics.PreferredBackBufferHeight / 2.3f),
                     Color.Black);
 
                 //Page buttons
                 _spriteBatch.Draw(nextPageL, new Vector2(0, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.FlipHorizontally, 0f);
-                _spriteBatch.Draw(nextPageR, new Vector2(_graphics.PreferredBackBufferWidth - nextPageR.Width / 8.8f, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.None, 0f); //TODO: Why the frick is this divided by cursor.Width???????????????????????????????
+                _spriteBatch.Draw(nextPageR, new Vector2(_graphics.PreferredBackBufferWidth - nextPageR.Width / 8.8f, 0), null, Color.White, 0f, Vector2.Zero, new Vector2(0.12f, 0.16f), SpriteEffects.None, 0f); //Why the frick is this divided by cursor.Width???????????????????????????????
 
                 //Cursor
                 _spriteBatch.Draw(cursor, mousePos, null, Color.White, 0f, new Vector2(cursor.Width / 2, cursor.Height / 2), Vector2.One, SpriteEffects.None, 0f);
@@ -200,8 +262,14 @@ public class Game1 : Game
 
             case GameState.Gameplay:
                 GraphicsDevice.Clear(Color.Black);
+                _spriteBatch.Begin();
+                if (initialized)
+                {
+                    _spriteBatch.Draw(hitCircle, currentHitObject.Position, null, Color.White, 0f, Vector2.Zero, new Vector2(0.5f, 0.5f), SpriteEffects.None, 0f);
+                }
 
-
+                _spriteBatch.Draw(cursor, mousePos, null, Color.White, 0f, new Vector2(cursor.Width / 2, cursor.Height / 2), Vector2.One, SpriteEffects.None, 0f);
+                _spriteBatch.End();
                 break;
         }
     }

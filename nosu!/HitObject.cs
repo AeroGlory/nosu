@@ -1,16 +1,16 @@
-﻿using System;
+﻿/*using System;
 namespace nosu
 {
 	public class HitObject
 	{
 		public HitObject(string hitObject)
+
+        public int x = 0;
+        public int y = 0;
+        public int time = 0;
+        public int type = 0;	
+
 		{
-
-
-			public int x = 0;
-			public int y = 0;
-			public int time = 0;
-			public int type = 0;	
 
 
 			x = int.Parse(hitObject.Split(',')[0]);
@@ -25,3 +25,4 @@ namespace nosu
 }
 		
  
+*/

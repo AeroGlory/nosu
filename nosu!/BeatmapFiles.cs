@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using OsuParsers.Beatmaps;
+using OsuParsers.Decoders;
 
 namespace nosu
 {
-    public class Beatmap
+    public class BeatmapFiles
     {
         public List<string> assets;
-        public List<Hashtable> difficulties = new();
-        public string fullPath;
-        public Beatmap(string filePath)
+        public List<Beatmap> difficulties = new();
+        private Beatmap newBeatmap;
+        public string fullPath; 
+        public BeatmapFiles(string filePath)
         {
             Console.WriteLine(filePath + Path.GetExtension(filePath));
             if (Path.GetExtension(filePath) == ".osz")
@@ -38,7 +42,10 @@ namespace nosu
                     if (Path.GetExtension(assets[i]) == ".osu")
                     {
                         Console.WriteLine("Retrieving beatmap data");
-                        difficulties.Add(GetDiffInfo(assets[i]));
+
+                        newBeatmap = BeatmapDecoder.Decode(assets[i]);
+
+                        difficulties.Add(newBeatmap);
                     }
                 }
             }
@@ -55,7 +62,7 @@ namespace nosu
             return beatmaps;
         }
 
-        private Hashtable GetDiffInfo(string filePath) //TODO: Parse all beatmap data (as outlined here: https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29)
+        /*private Hashtable GetDiffInfo(string filePath) //TODO: Parse all beatmap data (as outlined here: https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29)
         {
             Hashtable diffData = new();
             Hashtable values = new();
@@ -75,7 +82,7 @@ namespace nosu
 
             for (int i = 0; i < sections.Length; i++)
             {
-                if (sections[i] != "[Events]" && sections[i] != "[TimingPoints]" && sections[i] != "[HitObjects]") //TODO: This whole part is kind of strange but it took so long to get it to work that I'm too scared to touch it
+                if (sections[i] != "[Events]" && sections[i] != "[TimingPoints]" && sections[i] != "[HitObjects]") 
                 {
                     for(int l = 0; l < data[i].Split("\n").Length; l++)
                     {
@@ -87,7 +94,7 @@ namespace nosu
                         catch
                         {
                             //For whitespace or something else that causes the Split() to not work
-                            //TODO: Make it not do that
+                            
                             continue;
                         }
                                                  
@@ -120,8 +127,8 @@ namespace nosu
             return diffData;
         }
 
-
-        public static bool initGameplay(Beatmap beatmap)
+        */
+        public static bool initGameplay(BeatmapFiles beatmap)
         {
             
 
