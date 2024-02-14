@@ -13,7 +13,7 @@ public class Game1 : Game
     int nextObject = 0;
     int currentDiff = 0;
     const double selectCooldown = 0.2;
-    double prevPress;
+    double prevPress = 0;
     double prevSelect;
     HitObject currentHitObject;
     double beatmapStart;
@@ -38,6 +38,7 @@ public class Game1 : Game
     Texture2D nextPageL;
     Texture2D nextPageR;
     Texture2D hitCircle;
+    Texture2D approachCircle;
     Player player = new();
     
     private GraphicsDeviceManager _graphics;
@@ -48,8 +49,8 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false; //To use custom "circle" cursor found in osu!
-        //_graphics.PreferredBackBufferWidth = 500; 
-        //_graphics.PreferredBackBufferHeight = 500;
+        _graphics.PreferredBackBufferWidth = 640; 
+        _graphics.PreferredBackBufferHeight = 480;
         _graphics.IsFullScreen = false;
     }
 
@@ -74,6 +75,7 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
+        approachCircle = Content.Load<Texture2D>("approachcircle");
         beatmapName = Content.Load<SpriteFont>("BeatmapName");
         nextPageL = Content.Load<Texture2D>("nextPg");
         nextPageR = Content.Load<Texture2D>("nextPg");
@@ -85,12 +87,18 @@ public class Game1 : Game
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
         {
-            if (gameState == GameState.Gameplay)
+            if (gameState == GameState.Gameplay )//&& (gameTime.TotalGameTime.TotalSeconds - prevPress) >= selectCooldown) //Switch statement? I barely know her!
             {
                 finished = true;
                 initialized = false;
+                prevPress = gameTime.TotalGameTime.TotalSeconds;
             }
-            else
+            else if (gameState == GameState.DiffSelect && (gameTime.TotalGameTime.TotalSeconds - prevPress) >= selectCooldown)
+            {
+                gameState = GameState.SongSelect;
+                prevPress = gameTime.TotalGameTime.TotalSeconds;
+            }
+            else if ((gameTime.TotalGameTime.TotalSeconds - prevPress) >= selectCooldown)
             {
                 Exit();
             }
@@ -98,12 +106,19 @@ public class Game1 : Game
         switch (gameState)
         {
             case GameState.SongSelect:
-        
-            if (Keyboard.GetState().IsKeyDown(Keys.Right) && currentBeatmap + 1 < beatmaps.Count)
-                currentBeatmap++;
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Left) && currentBeatmap - 1 >= 0)
-                currentBeatmap--;
+                if (Keyboard.GetState().IsKeyDown(Keys.Right) && currentBeatmap + 1 < beatmaps.Count && (gameTime.TotalGameTime.TotalSeconds - prevSelect) >= selectCooldown)
+                {
+                    currentBeatmap++;
+                    prevSelect = gameTime.TotalGameTime.TotalSeconds;
+                }
+
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Left) && currentBeatmap - 1 >= 0 && (gameTime.TotalGameTime.TotalSeconds - prevSelect) >= selectCooldown)
+                {
+                    currentBeatmap--;
+                    prevSelect = gameTime.TotalGameTime.TotalSeconds;
+                }
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Enter))
                 {
@@ -131,6 +146,11 @@ public class Game1 : Game
                 break;
 
             case GameState.Gameplay:
+
+                if (finished)
+                {
+                    gameState = GameState.SongSelect; //TODO: Make notes synced to start time.
+                }
 
                 if (!initialized)
                 {
@@ -170,11 +190,6 @@ public class Game1 : Game
                 {
                     finished = true;
                     initialized = false;
-                }
-
-                if (finished)
-                {
-                    gameState = GameState.SongSelect; //TODO: Make notes synced to start time.
                 }
 
                 Console.WriteLine(gameTime.TotalGameTime.TotalMilliseconds - beatmapStart);
@@ -266,6 +281,7 @@ public class Game1 : Game
                 if (initialized)
                 {
                     _spriteBatch.Draw(hitCircle, currentHitObject.Position, null, Color.White, 0f, Vector2.Zero, new Vector2(0.5f, 0.5f), SpriteEffects.None, 0f);
+                    _spriteBatch.Draw(approachCircle, currentHitObject.Position, null, Color.White, 0f, new Vector2(30, 30), new Vector2(0.75f, 0.75f), SpriteEffects.None, 0f);
                 }
 
                 _spriteBatch.Draw(cursor, mousePos, null, Color.White, 0f, new Vector2(cursor.Width / 2, cursor.Height / 2), Vector2.One, SpriteEffects.None, 0f);

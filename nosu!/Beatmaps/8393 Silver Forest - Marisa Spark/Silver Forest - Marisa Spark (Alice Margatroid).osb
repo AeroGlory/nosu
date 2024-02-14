@@ -1,0 +1,59 @@
+[Events]
+//Background and Video events
+//Storyboard Layer 0 (Background)
+//Storyboard Layer 1 (Fail)
+//Storyboard Layer 2 (Pass)
+//Storyboard Layer 3 (Foreground)
+Sprite,Foreground,BottomCentre,"lyrics\01.png",320,480
+ F,0,1964,2143,0,1
+ F,0,2143,2857,1
+ F,0,2857,3036,1,0
+Sprite,Foreground,BottomCentre,"lyrics\02.png",320,480
+ F,0,2857,4643,1
+ F,0,4643,5000,1,0
+Sprite,Foreground,BottomCentre,"lyrics\03.png",320,480
+ F,0,5000,5178,0,1
+ F,0,5178,7500,1
+ F,0,7500,7857,1,0
+Sprite,Foreground,BottomCentre,"lyrics\04.png",320,480
+ F,0,7857,8036,0,1
+ F,0,8036,9464,1
+ F,0,9464,9643,1,0
+Sprite,Foreground,BottomCentre,"lyrics\05.png",320,480
+ F,0,9643,9821,0,1
+ F,0,9821,11250,1
+ F,0,11250,11428,1,0
+Sprite,Foreground,BottomCentre,"lyrics\06.png",320,480
+ F,0,11250,11428,0,1
+ F,0,11428,13571,1
+ F,0,13571,13750,1,0
+Sprite,Foreground,BottomCentre,"lyrics\07.png",320,480
+ F,0,13750,13928,0,1
+ F,0,13928,16428,1
+ F,0,16428,16607,1,0
+Sprite,Foreground,BottomCentre,"lyrics\08.png",320,480
+ F,0,16428,16607,1
+ F,0,16607,19999,1
+ F,0,19999,20177,1,0
+Sprite,Foreground,BottomCentre,"lyrics\10.png",320,480
+ F,0,19821,20000,0,1
+ F,0,20000,23571,1
+ F,0,23571,23750,1,0
+Sprite,Foreground,Centre,"lyrics\shanghai.png",320,240
+ F,0,16250,16428,0,1
+ S,0,16250,16428,1.33792,1
+ F,0,16428,16786,1
+ S,0,16428,16786,1
+ F,0,16786,16964,1,0
+ S,0,16786,16964,1,1.34816
+Sprite,Foreground,Centre,"lyrics\09.png",320,240
+ F,0,18393,18571,0,1
+ F,0,18571,18928,1
+ M,0,18393,19107,208,263,267,262
+ F,0,18928,19107,1,0
+Sprite,Foreground,Centre,"lyrics\09.png",320,240
+ F,0,19107,19286,0,1
+ F,0,19286,19643,1
+ M,0,19107,19821,380,244,320,240
+ F,0,19643,19821,1,0
+//Storyboard Sound Samples
