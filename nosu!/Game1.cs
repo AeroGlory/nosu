@@ -10,6 +10,7 @@ namespace nosu_;
 public class Game1 : Game
 {
     int currentBeatmap = 0;
+    bool hit = false;
     int nextObject = 0;
     int currentDiff = 0;
     const double selectCooldown = 0.2;
@@ -19,11 +20,15 @@ public class Game1 : Game
     double beatmapStart;
     bool initialized = false;
     bool finished = false;
+    int score = 0;
 
     List<HitObject> hitObjects;
     List<string> beatmapLocations;
     List<BeatmapFiles> beatmaps;
     Vector2 mousePos;
+    Vector2 approachCircleSize = new Vector2(0.5f, 0.5f);
+    Vector2 approachCirclePos = new Vector2(0,0);
+    Vector2 approachCircleSizeStart;
 
     enum GameState
     {
@@ -149,7 +154,7 @@ public class Game1 : Game
 
                 if (finished)
                 {
-                    gameState = GameState.SongSelect; //TODO: Make notes synced to start time.
+                    gameState = GameState.SongSelect; 
                 }
 
                 if (!initialized)
@@ -177,6 +182,23 @@ public class Game1 : Game
 
                 currentHitObject = hitObjects[nextObject];
 
+
+                if (approachCircleSize.X > 0.5)
+                {
+                Console.WriteLine((float)((approachCircleSizeStart.X - 0.5) * (currentHitObject.StartTime / (gameTime.TotalGameTime.TotalMilliseconds - beatmapStart)) / 2 * -1));
+                approachCircleSize.X -= (float)((approachCircleSizeStart.X - 0.5) / (currentHitObject.StartTime - (gameTime.TotalGameTime.TotalMilliseconds - beatmapStart)));
+                approachCircleSize.Y = approachCircleSize.X; 
+                //approachCircleSize.X -= 0.01f;
+                //approachCircleSize.Y = approachCircleSize.X;
+
+                //Console.WriteLine(approachCircleSize);
+                }
+                else
+                {
+                approachCircleSize.X = 0.5f;
+                approachCircleSize.Y = approachCircleSize.X;
+                }
+
                 //Thread.Sleep(1000);
 
                 if (nextObject + 1 <= hitObjects.Count - 1)
@@ -184,6 +206,12 @@ public class Game1 : Game
                     if (currentHitObject.StartTime! <= gameTime.TotalGameTime.TotalMilliseconds - beatmapStart)
                     {
                         nextObject++;
+                        hit = false;
+
+                        approachCircleSizeStart = new Vector2((float)((approachCircleSizeStart.X - 0.5) * (currentHitObject.StartTime / gameTime.TotalGameTime.TotalMilliseconds - beatmapStart)));
+                        
+                        //approachCircleSize = new Vector2(2);
+
                     }
                 }
                 else
@@ -192,7 +220,7 @@ public class Game1 : Game
                     initialized = false;
                 }
 
-                Console.WriteLine(gameTime.TotalGameTime.TotalMilliseconds - beatmapStart);
+                //Console.WriteLine(gameTime.TotalGameTime.TotalMilliseconds - beatmapStart);
                 /*foreach(HitObject hitObject in hitObjects) {
                     Console.WriteLine(hitObject.x.ToString(), hitObject.y.ToString(), hitObject.time.ToString());
                 }*/
@@ -203,7 +231,7 @@ public class Game1 : Game
 
                 try
                 {
-                    if (!player.Playing) //TODO: make it work
+                    if (!player.Playing) //TODO: make it work realrealrealrealrealrealreal
                     {
                         //Console.WriteLine(Path.GetFullPath(beatmaps[currentBeatmap].difficulties[0].GeneralSection.AudioFilename)); //C# hates absoulte file paths apparently
 
@@ -225,7 +253,15 @@ public class Game1 : Game
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Z) || Keyboard.GetState().IsKeyDown(Keys.X))
                 {
-                    prevPress = gameTime.TotalGameTime.TotalSeconds;
+                    prevPress = gameTime.TotalGameTime.TotalMilliseconds - beatmapStart;
+
+                    if (prevPress >= (currentHitObject.StartTime + 100) || prevPress <= (currentHitObject.StartTime - 100) && hit == false) {
+
+                        Console.WriteLine("PrevPress = " + prevPress + "      |      HitObjectStart = " + currentHitObject.StartTime);
+
+                        hit = true;
+                        score += 300;
+                    }
                 }
 
                 break;
@@ -281,7 +317,7 @@ public class Game1 : Game
                 if (initialized)
                 {
                     _spriteBatch.Draw(hitCircle, currentHitObject.Position, null, Color.White, 0f, Vector2.Zero, new Vector2(0.5f, 0.5f), SpriteEffects.None, 0f);
-                    _spriteBatch.Draw(approachCircle, currentHitObject.Position, null, Color.White, 0f, new Vector2(30, 30), new Vector2(0.75f, 0.75f), SpriteEffects.None, 0f);
+                    _spriteBatch.Draw(approachCircle, currentHitObject.Position, null, Color.White, 0f, approachCirclePos, approachCircleSize, SpriteEffects.None, 0f);
                 }
 
                 _spriteBatch.Draw(cursor, mousePos, null, Color.White, 0f, new Vector2(cursor.Width / 2, cursor.Height / 2), Vector2.One, SpriteEffects.None, 0f);
