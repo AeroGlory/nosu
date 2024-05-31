@@ -1,6 +1,6 @@
 # nosu!
 
-## Warning: This sucks and I never want to look at this again. 
+## Warning: This sucks, only here for archival purposes.
 
 A *terrible* clone of the rhythm game "osu!" for a class project. Made with [MonoGame](https://www.monogame.net/).
 
